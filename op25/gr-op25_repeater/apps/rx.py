@@ -464,7 +464,7 @@ class p25_rx_block (gr.top_block):
         if self.last_change_freq > 0:
             err_ppm = round((self.tuning_error*1e6) / float(self.last_change_freq))
             err_hz = -int(self.tuning_error - (err_ppm * (self.last_change_freq / 1e6)))
-        if self.options.verbosity >= 10:
+        if self.options.verbosity >= 20:
             sys.stderr.write('%s frequency_tracking\t%d\t%d\t%d\t%d\t%d\n' % (log_ts.get(), freq_error, self.error_band, self.tuning_error, err_ppm, err_hz))
         if do_freq_update:
             corrected_ppm = self.options.freq_corr + err_ppm  # compute new device ppm based on starting point plus adjustment
