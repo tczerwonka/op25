@@ -1816,7 +1816,8 @@ class rx_ctl (object):
 
         if command == 'timeout':
             if self.current_state == self.states.CC:
-                if self.debug > 0:
+                #20 for stuff I don't care about
+                if self.debug >= 20:
                     sys.stderr.write("%s control channel timeout\n" % log_ts.get())
                 tsys.cc_timeouts += 1
             elif self.current_state != self.states.CC:
