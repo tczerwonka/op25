@@ -683,7 +683,8 @@ namespace gr {
             if (d_do_msgq && !d_msg_queue->full_p()) {
                 // check for timeout
                 if (qtimer.expired()) {
-                    if (d_debug >= 10)
+                    //don't care
+                    if (d_debug >= 20)
                         fprintf(stderr, "%s p25p1_fdma::check_timeout: expired\n", logts.get(d_msgq_id));
 
                     if (d_do_audio_output) {
