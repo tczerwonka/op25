@@ -351,7 +351,7 @@ namespace gr {
 
         void p25p1_fdma::process_TDU3() {
             if (d_debug >= 10) {
-                fprintf (stderr, "%s NAC 0x%03x TDU3:  ", logts.get(d_msgq_id), framer->nac);
+                fprintf (stderr, "%s NAC 0x%03x TDU3: unit-unit call  ", logts.get(d_msgq_id), framer->nac);
             }
 
             process_TTDU();
@@ -361,9 +361,11 @@ namespace gr {
             }
         }
 
+
+        //LCO = 15, call termination/cancellation
         void p25p1_fdma::process_TDU15(const bit_vector& A) {
             if (d_debug >= 10) {
-                fprintf (stderr, "%s NAC 0x%03x TDU15:  ", logts.get(d_msgq_id), framer->nac);
+                fprintf (stderr, "%s NAC 0x%03x TDU15 call term-cancel:  ", logts.get(d_msgq_id), framer->nac);
             }
 
             process_TTDU();
@@ -389,6 +391,9 @@ namespace gr {
             }
         }
 
+        //LCW -- link control word, 144 bits
+        //TIA-102.AABF
+        //https://archive.org/details/TIA-102_Series_Documents/TIA-102-AABF-A_Link_Control_Word_Formats_And_Messages/page/n13/mode/2up?view=theater
         void p25p1_fdma::process_LCW(std::vector<uint8_t>& HB) {
             int ec = rs12.decode(HB); // Reed Solomon (24,12,13) error correction
             if ((ec < 0) || (ec > 6)) // upper limit of 6 corrections
@@ -416,10 +421,35 @@ namespace gr {
             int lco =   lcw[0] & 0x3f;
             std::string s = "";
 
+            //e.g.
+            //NAC 0x230 LDU1: LCW: ec=0, pb=0, sf=0, lco=0 : 00 00 04 00 00 01 00 59 d9
+            //NAC 0x230 LDU1: LCW: ec=0, pb=0, sf=0, lco=0 : 00 00 04 00 00 01 00 59 db
+            //NAC 0x230 LDU1: LCW: ec=0, pb=0, sf=0, lco=0 : 00 00 04 00 00 01 23 18 c7
+            //NAC 0x230 LDU1: LCW: ec=0, pb=0, sf=0, lco=0 : 00 00 04 00 00 01 23 18 c9
+            //NAC 0x230 LDU1: LCW: ec=0, pb=0, sf=0, lco=0 : 00 00 04 00 00 01 23 18 cd
+                
+            //ec - rsid error correction
+            //octet 0
+                //pb - protected
+                //sf - mfid format
+                //lco - link control opcode 
+            //if lco=0 and sf=0 -- group voice channel user -- primarily what I see
+                //octet 1 -- MFID
+                //octet 2 -- service options
+                //octet 3 -- reserved
+                //octet 4,5 -- group address
+                //octet 6,7,8 -- source address
             if (d_debug >= 10) {
                 fprintf(stderr, "LCW: ec=%d, pb=%d, sf=%d, lco=%d : %02x %02x %02x %02x %02x %02x %02x %02x %02x",
                         ec, pb, sf, lco, lcw[0], lcw[1], lcw[2], lcw[3], lcw[4], lcw[5], lcw[6], lcw[7], lcw[8]);
-            }
+
+                uint32_t source_addr = (lcw[6] << 8) | lcw[7];
+                source_addr = (source_addr << 8 ) | lcw[8];
+                fprintf(stderr, "\tsource dec=%d, hex=%02x\n", source_addr, source_addr);
+
+            } //if
+
+
         }
 
         void p25p1_fdma::process_TSBK(const bit_vector& fr, uint32_t fr_len) {
