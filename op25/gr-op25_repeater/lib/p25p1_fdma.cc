@@ -442,11 +442,12 @@ namespace gr {
             if (d_debug >= 10) {
                 fprintf(stderr, "LCW: ec=%d, pb=%d, sf=%d, lco=%d : %02x %02x %02x %02x %02x %02x %02x %02x %02x",
                         ec, pb, sf, lco, lcw[0], lcw[1], lcw[2], lcw[3], lcw[4], lcw[5], lcw[6], lcw[7], lcw[8]);
-
+            } //if geq 10
+            if (d_debug = 7) {
                 uint32_t source_addr = (lcw[6] << 8) | lcw[7];
                 source_addr = (source_addr << 8 ) | lcw[8];
-                fprintf(stderr, "\tsource dec=%d, hex=%02x\n", source_addr, source_addr);
-
+                fprintf(stderr, "LCW: ec=%d, pb=%d, sf=%d, lco=%d, src_addr=%02x ", 
+                    ec, pb, sf, lco, source_addr);
             } //if
 
 
